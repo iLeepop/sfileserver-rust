@@ -15,9 +15,6 @@ pub fn read_file(path: &str) -> String {
 }
 
 pub fn read_dir(dir_path: &str) -> Vec<String> {
-    if dir_path == "/favicon.ico" {
-        return vec![]
-    }
     let mut list = Vec::<String>::new();
     for entry in std::fs::read_dir(format!("{}{}", pwd(), dir_path))
                                                                 .expect("Error reading directory") {
