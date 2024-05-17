@@ -1,36 +1,46 @@
-use std::{io::{BufRead, Read, Write}, net::{TcpListener, TcpStream}};
-
+use std::io::BufRead;
+use async_std::{io::{ReadExt, WriteExt}, net::{TcpListener as AsyncTcpListener, TcpStream as AsyncTcpStream}, task::spawn};
+use rocket::futures::StreamExt;
 use crate::{http, io};
 
 pub struct Server<'a> {
-    listener: TcpListener,
+    listener: AsyncTcpListener,
     address: &'a str,
 }
 
 impl<'a> Server<'a> {
-    pub fn new(address: &str) -> Server {
+    pub async fn new(address: &str) -> Server {
         Server {
-            listener: TcpListener::bind(&address).unwrap(),
+            listener: AsyncTcpListener::bind(&address).await.unwrap(),
             address,
         }
     }
-    pub fn run(self) {
+    pub async fn run(self) {
         println!("Server is running at {}", self.address);
-        for stream in self.listener.incoming() {
-            let stream = stream.unwrap();
-            handle_connection(stream);
-        }
+        self.listener.incoming().for_each_concurrent(None, |async_tcp_stream| async move {
+            let stream = async_tcp_stream.unwrap();
+            spawn(handle_connection(stream));
+        }).await;
     }
 }
 
-fn handle_connection(mut stream: TcpStream) {
+async fn handle_connection(mut stream: AsyncTcpStream) {
     let mut buffer = [0; 1024];
-    stream.read(&mut buffer).unwrap();
+    stream.read(&mut buffer).await.unwrap();
     
     let line = buffer.lines().nth(0).unwrap().unwrap();
     let url = line.split(" ").nth(1).unwrap();
-
-    let content = http::content(io::read_dir(url));
+    println!("{}", url);
+    let content: String;
+    if io::is_exists(url) {
+        if io::is_file(url) {
+            content = io::read_file(url);
+        } else {
+            content = http::content(io::read_dir(url));
+        }
+    } else {
+        content = String::from("404 Not Found");
+    }
 
     let response = format!(
         "{}\r\nContent-Length: {}\r\n\r\n{}",
@@ -39,22 +49,7 @@ fn handle_connection(mut stream: TcpStream) {
         content
     );
 
-    stream.write(response.as_bytes()).unwrap();
-    stream.flush().unwrap();
+    stream.write(response.as_bytes()).await.unwrap();
+    stream.flush().await.unwrap();
 
-}
-
-fn handle_route() {
-
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_server() {
-        let server = Server::new("127.0.0.1:8080");
-        server.run();
-    }
 }

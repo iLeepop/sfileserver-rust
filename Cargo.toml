@@ -1,5 +1,5 @@
 [package]
-name = "rocket-example"
+name = "sfileserver"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,5 +8,10 @@ edition = "2021"
 [dependencies.rocket]
 version = "0.5.0"
 features = ["json"]
+
+[dependencies.async-std]
+version = "1.6"
+features = ["attributes"]
+
 
 [dependencies]

@@ -8,15 +8,12 @@ pub fn pwd() -> String {
                 .to_string()
 }
 
-// 读文件
 pub fn read_file(path: &str) -> String {
-    // let path = format!("{}{}", pwd(), path);
     let file = std::fs::read_to_string(format!("{}{}", pwd(), path))
                                                     .expect("Error reading file");
     file
 }
 
-// 读目录
 pub fn read_dir(dir_path: &str) -> Vec<String> {
     if dir_path == "/favicon.ico" {
         return vec![]
@@ -30,15 +27,25 @@ pub fn read_dir(dir_path: &str) -> Vec<String> {
                                     .unwrap()
                                     .to_str()
                                     .unwrap();
-        list.push(file_name.to_string());
+        if dir_path == "/" {
+            list.push(format!("{}{}", dir_path, file_name));
+        } else {
+            list.push(format!("{}/{}", dir_path, file_name));
+        }
     }
     list
 }
 
-// 判断文件类型 文件或目录
 pub fn is_file(path: &str) -> bool {
-    let path = Path::new(path);
+    let path = format!("{}{}", pwd(), path);
+    let path = Path::new(&path);
     path.is_file()
+}
+
+pub fn is_exists(path: &str) -> bool {
+    let path = format!("{}{}", pwd(), path);
+    let path = Path::new(&path);
+    path.exists()
 }
 
 #[cfg(test)]
@@ -47,7 +54,6 @@ mod tests {
 
     #[test]
     fn test_read_file() {
-        // 确认当前执行路径
         let file = read_file( "/src/io/test" );
         assert_eq!(file, "This file is a test file for io");
     }
@@ -58,5 +64,10 @@ mod tests {
         for item in list {
             println!("{}", item);
         }
+    }
+
+    #[test]
+    fn test_is_file() {
+        assert_eq!(is_file("/src/io/test"), true);
     }
 }

@@ -3,7 +3,8 @@ mod http;
 
 use crate::http::Server;
 
-fn main() {
-    let server = Server::new("127.0.0.1:8989");
-    server.run();
+#[async_std::main]
+async fn main() {
+    let server = Server::new("127.0.0.1:8989").await;
+    server.run().await;
 }
