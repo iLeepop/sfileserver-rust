@@ -15,3 +15,4 @@ features = ["attributes"]
 
 
 [dependencies]
+local-ip-address = "0.6.3"

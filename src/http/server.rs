@@ -16,7 +16,7 @@ impl<'a> Server<'a> {
         }
     }
     pub async fn run(self) {
-        println!("Server is running at {}", self.address);
+        println!("Server is running at http://{}", self.address);
         self.listener.incoming().for_each_concurrent(None, |async_tcp_stream| async move {
             let stream = async_tcp_stream.unwrap();
             spawn(handle_connection(stream));
