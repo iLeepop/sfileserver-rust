@@ -3,20 +3,22 @@ use async_std::{io::{ReadExt, WriteExt}, net::{TcpListener as AsyncTcpListener, 
 use rocket::futures::StreamExt;
 use crate::{http, io};
 
-pub struct Server<'a> {
+pub struct Server {
     listener: AsyncTcpListener,
-    address: &'a str,
+    address: String,
+    port: String,
 }
 
-impl<'a> Server<'a> {
-    pub async fn new(address: &str) -> Server {
+impl Server {
+    pub async fn new(address: String, port: String) -> Server {
         Server {
-            listener: AsyncTcpListener::bind(&address).await.unwrap(),
+            listener: AsyncTcpListener::bind(format!("{}:{}", address, port)).await.unwrap(),
             address,
+            port,
         }
     }
     pub async fn run(self) {
-        println!("Server is running at http://{}", self.address);
+        println!("Server is running at http://{}:{}", self.address, self.port);
         self.listener.incoming().for_each_concurrent(None, |async_tcp_stream| async move {
             let stream = async_tcp_stream.unwrap();
             spawn(handle_connection(stream));
