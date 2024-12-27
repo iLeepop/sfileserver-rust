@@ -1,5 +1,7 @@
 mod io;
 mod http;
+mod models;
+mod utils;
 
 use std::net::IpAddr;
 
