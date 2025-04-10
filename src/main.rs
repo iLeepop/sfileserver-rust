@@ -17,10 +17,6 @@ struct Args {
     /// number of the connection's port
     #[arg(short, long, default_value_t = String::from("8000"))]
     port: String,
-
-    /// Number of times to greet
-    #[arg(short, long, default_value_t = 1)]
-    count: u8,
 }
 
 #[tokio::main]

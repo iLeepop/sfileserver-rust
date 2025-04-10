@@ -1,5 +1,5 @@
 use tokio::{net::TcpListener, io::{AsyncReadExt, AsyncWriteExt}};
-use std::{fs, path::PathBuf};
+use async_std::{fs, path::PathBuf};
 
 use super::parse_request_path;
 use crate::utils::get_content_type;
@@ -37,8 +37,8 @@ impl Server {
                 // 指定文件夹
                 let file_path = PathBuf::from(directory).join(path);
                 
-                if file_path.exists() {
-                    match fs::read(&file_path) {
+                if file_path.exists().await {
+                    match fs::read(&file_path).await {
                         Ok(content) => {
                             let header = format!(
                                 "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: {}\r\n\r\n",

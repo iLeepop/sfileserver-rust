@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use async_std::path::PathBuf;
 
 pub fn get_content_type(path: &PathBuf) -> &str {
     match path.extension().and_then(|ext| ext.to_str()) {
