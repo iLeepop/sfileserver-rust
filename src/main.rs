@@ -8,7 +8,7 @@ use http::Server;
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(name = "Search File Server", version, about = "Start a Web File Server", long_about = None)]
 struct Args {
     /// directory of the contents to view
     #[arg(short, long, default_value_t = String::from("./public"))]
